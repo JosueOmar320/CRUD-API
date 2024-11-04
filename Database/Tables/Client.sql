@@ -1,0 +1,4 @@
+﻿CREATE TABLE [dbo].[Client]
+(
+	[ClientId] BIGINT NOT NULL IDENTITY(10000,1)
+)
