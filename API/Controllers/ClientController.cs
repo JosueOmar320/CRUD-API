@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using DataLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography.X509Certificates;
 
@@ -16,9 +16,9 @@ namespace API.Controllers
         {
             var listClient = new List<Client>
             {
-                new Client { ClientId = 1, Name = "John Doe", Email = "johndoe@example.com" },
-                new Client { ClientId = 2, Name = "Mariana", Email = "Mariana@example.com" },
-                new Client { ClientId = 3, Name = "Julio", Email = "Julio@example.com" },
+                new Client { ClientId = 1, FirstName = "John Doe", LastName = "John Doe", Email = "johndoe@example.com" },
+                new Client { ClientId = 2, FirstName = "John Doe", LastName = "John Doe", Email = "Mariana@example.com" },
+                new Client { ClientId = 3, FirstName = "John Doe", LastName = "John Doe", Email = "Julio@example.com" },
             };
             return listClient;
         }
@@ -29,9 +29,9 @@ namespace API.Controllers
         {
             var listClient = new List<Client>
             {
-                new Client { ClientId = 1, Name = "John Doe", Email = "johndoe@example.com" },
-                new Client { ClientId = 2, Name = "Mariana", Email = "Mariana@example.com" },
-                new Client { ClientId = 3, Name = "Julio", Email = "Julio@example.com" },
+                new Client { ClientId = 1, FirstName = "John Doe", LastName = "John Doe", Email = "johndoe@example.com" },
+                new Client { ClientId = 2, FirstName = "John Doe", LastName = "John Doe", Email = "Mariana@example.com" },
+                new Client { ClientId = 3, FirstName = "John Doe", LastName = "John Doe", Email = "Julio@example.com" },
             };
 
             var FoundValue = listClient.FirstOrDefault(x => x.ClientId == id);
