@@ -16,10 +16,19 @@ namespace DataLayer.Data
         }
 
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categorys { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Client>().ToTable("Client");
+            modelBuilder.Entity<Product>().ToTable("Product");
+            modelBuilder.Entity<Category>().ToTable("Category");
+            modelBuilder.Entity<ProductCategory>().ToTable("ProductCategory");
+
+            modelBuilder.Entity<ProductCategory>()
+            .HasKey(pc => new { pc.ProductId, pc.CategoryId });
         }
     }
 }

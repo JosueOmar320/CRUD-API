@@ -12,47 +12,47 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ClientController(AppDbContext context)
+        public CategoriesController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Client
+        // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategorys()
         {
-            return await _context.Clients.ToListAsync();
+            return await _context.Categorys.ToListAsync();
         }
 
-        // GET: api/Client/5
+        // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Client>> GetClient(int id)
+        public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var category = await _context.Categorys.FindAsync(id);
 
-            if (client == null)
+            if (category == null)
             {
                 return NotFound();
             }
 
-            return client;
+            return category;
         }
 
-        // PUT: api/Client/5
+        // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(int id, Client client)
+        public async Task<IActionResult> PutCategory(int id, Category category)
         {
-            if (id != client.ClientId)
+            if (id != category.CategoryId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(client).State = EntityState.Modified;
+            _context.Entry(category).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ClientExists(id))
+                if (!CategoryExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace API.Controllers
             return NoContent();
         }
 
-        // POST: api/Client
+        // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(Client client)
+        public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            _context.Clients.Add(client);
+            _context.Categorys.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetClient", new { id = client.ClientId }, client);
+            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
         }
 
-        // DELETE: api/Client/5
+        // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClient(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
-            if (client == null)
+            var category = await _context.Categorys.FindAsync(id);
+            if (category == null)
             {
                 return NotFound();
             }
 
-            _context.Clients.Remove(client);
+            _context.Categorys.Remove(category);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ClientExists(int id)
+        private bool CategoryExists(int id)
         {
-            return _context.Clients.Any(e => e.ClientId == id);
+            return _context.Categorys.Any(e => e.CategoryId == id);
         }
     }
 }

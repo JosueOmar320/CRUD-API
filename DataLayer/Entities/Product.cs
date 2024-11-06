@@ -8,16 +8,15 @@ using System.Threading.Tasks;
 
 namespace DataLayer.Entities
 {
-    public class Client
+    public class Product
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ClientId { get; set; }
+        public int ProductId { get; set; }
         [Required]
-        public string FirstName { get; set; }
+        public string Name { get; set; }
         [Required]
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        public string Description { get; set; }
 
     }
 }
