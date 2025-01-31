@@ -9,6 +9,8 @@ namespace Application.Interfaces
 {
     public interface IProductService
     {
-        Task<List<Product>> GetAllProducts();
+        Task<List<Product>> GetAllProducts(CancellationToken cancellationToken);
+        Task<Product> GetProductById(int productId, CancellationToken cancellationToken);
+        Task<int> CreateProduct(Product product, CancellationToken cancellationToken);
     }
 }

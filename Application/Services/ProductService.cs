@@ -19,9 +19,21 @@ namespace Application.Services
             _context = context;
         }
 
-        public async Task<List<Product>> GetAllProducts()
+        public async Task<int> CreateProduct(Product product, CancellationToken cancellationToken)
         {
-            return await _context.Products.ToListAsync();
+            await _context.Products.AddAsync(product, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            return product.ProductId;
+        }
+
+        public async Task<List<Product>> GetAllProducts(CancellationToken cancellationToken)
+        {
+            return await _context.Products.ToListAsync(cancellationToken);
+        }
+
+        public async Task<Product> GetProductById(int productId, CancellationToken cancellationToken)
+        {
+            return await _context.Products.FirstOrDefaultAsync(x => x.ProductId.Equals(productId), cancellationToken);
         }
     }
 }

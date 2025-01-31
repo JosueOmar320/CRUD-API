@@ -24,24 +24,46 @@ namespace API.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(CancellationToken cancellationToken)
         {
-            return await _productService.GetAllProducts();
+            try
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return StatusCode(StatusCodes.Status499ClientClosedRequest);
+
+                return await _productService.GetAllProducts(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            
         }
 
-        //// GET: api/Products/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Product>> GetProduct(int id)
-        //{
-        //    var product = await _context.Products.FindAsync(id);
+        // GET: api/Products/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetProduct(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-        //    if (product == null)
-        //    {
-        //        return NotFound();
-        //    }
+                var product = await _productService.GetProductById(id, cancellationToken);
 
-        //    return product;
-        //}
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                return product;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            
+        }
 
         //// PUT: api/Products/5
         //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -74,16 +96,29 @@ namespace API.Controllers
         //    return NoContent();
         //}
 
-        //// POST: api/Products
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Product>> PostProduct(Product product)
-        //{
-        //    _context.Products.Add(product);
-        //    await _context.SaveChangesAsync();
+        // POST: api/Products
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Product>> PostProduct([FromBody] Product product, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-        //    return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
-        //}
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+
+                var id = await _productService.CreateProduct(product, cancellationToken);
+
+                return Ok(id);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         //// DELETE: api/Products/5
         //[HttpDelete("{id}")]
