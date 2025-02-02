@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DataLayer.Data;
 using DataLayer.Entities;
+using Application.Interfaces;
+using System.Threading;
 
 namespace API.Controllers
 {
@@ -14,95 +16,154 @@ namespace API.Controllers
     [ApiController]
     public class ClientController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IClientService _clientService;
 
-        public ClientController(AppDbContext context)
+        public ClientController(IClientService clientService)
         {
-            _context = context;
+            _clientService = clientService;
         }
 
         // GET: api/Client
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients()
+        [ProducesResponseType(typeof(List<Client>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
+        public async Task<ActionResult<IEnumerable<Client>>> GetAllClients(CancellationToken cancellationToken)
         {
-            return await _context.Clients.ToListAsync();
+            try
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return StatusCode(StatusCodes.Status499ClientClosedRequest);
+
+                var data = await _clientService.GetAllClientsAsync(cancellationToken);
+
+                if (data == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(data);    
+            }
+            catch (OperationCanceledException)
+            { 
+                return StatusCode(StatusCodes.Status499ClientClosedRequest);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
 
         // GET: api/Client/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Client>> GetClient(int id)
+        [ProducesResponseType(typeof(Client), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
+        public async Task<ActionResult<Client>> GetClientById(int id, CancellationToken cancellationToken)
         {
-            var client = await _context.Clients.FindAsync(id);
-
-            if (client == null)
+            try
             {
-                return NotFound();
-            }
+                if (cancellationToken.IsCancellationRequested)
+                    return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-            return client;
+                var data = await _clientService.GetClientByIdAsync(id, cancellationToken);
+
+                if (data == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(data);
+            }
+            catch (OperationCanceledException)
+            {
+                return StatusCode(StatusCodes.Status499ClientClosedRequest);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
 
         // PUT: api/Client/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(int id, Client client)
-        {
-            if (id != client.ClientId)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutClient(int id, Client client)
+        //{
+        //    if (id != client.ClientId)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(client).State = EntityState.Modified;
+        //    _context.Entry(client).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ClientExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!ClientExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         // POST: api/Client
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(Client client)
+        [ProducesResponseType(typeof(Client), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
+        public async Task<ActionResult<Client>> PostClient(Client client, CancellationToken cancellationToken)
         {
-            _context.Clients.Add(client);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-            return CreatedAtAction("GetClient", new { id = client.ClientId }, client);
+                var id = await _clientService.CreateClientAsync(client, cancellationToken);
+
+                return CreatedAtAction(nameof(GetClients), new { id }, client);
+            }
+            catch (OperationCanceledException)
+            {
+                return StatusCode(StatusCodes.Status499ClientClosedRequest);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
 
         // DELETE: api/Client/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClient(int id)
-        {
-            var client = await _context.Clients.FindAsync(id);
-            if (client == null)
-            {
-                return NotFound();
-            }
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteClient(int id)
+        //{
+        //    var client = await _context.Clients.FindAsync(id);
+        //    if (client == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            _context.Clients.Remove(client);
-            await _context.SaveChangesAsync();
+        //    _context.Clients.Remove(client);
+        //    await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
-        private bool ClientExists(int id)
-        {
-            return _context.Clients.Any(e => e.ClientId == id);
-        }
+        //private bool ClientExists(int id)
+        //{
+        //    return _context.Clients.Any(e => e.ClientId == id);
+        //}
     }
 }

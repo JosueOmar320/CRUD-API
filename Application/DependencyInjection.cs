@@ -15,6 +15,7 @@ namespace Application
         public static void AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IClientService, ClientService>();
         }
     }
 }

@@ -24,18 +24,18 @@ namespace API.Controllers
 
         // GET: api/Products
         [HttpGet]
-        [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<Product>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts(CancellationToken cancellationToken)
         {
             try
             {
                 if (cancellationToken.IsCancellationRequested)
                     return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-                var data = await _productService.GetAllProducts(cancellationToken);
+                var data = await _productService.GetAllProductsAsync(cancellationToken);
 
                 if(data == null)
                 {
@@ -70,7 +70,7 @@ namespace API.Controllers
                 if (cancellationToken.IsCancellationRequested)
                     return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-                var product = await _productService.GetProductById(id, cancellationToken);
+                var product = await _productService.GetProductByIdAsync(id, cancellationToken);
 
                 if (product == null)
                 {
@@ -136,7 +136,7 @@ namespace API.Controllers
                     return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
 
-                var id = await _productService.CreateProduct(product, cancellationToken);
+                var id = await _productService.CreateProductAsync(product, cancellationToken);
 
                 return CreatedAtAction(nameof(GetProduct), new { id }, product);
             }
