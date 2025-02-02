@@ -24,6 +24,10 @@ namespace API.Controllers
 
         // GET: api/Products
         [HttpGet]
+        [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts(CancellationToken cancellationToken)
         {
             try
@@ -31,7 +35,20 @@ namespace API.Controllers
                 if (cancellationToken.IsCancellationRequested)
                     return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-                return await _productService.GetAllProducts(cancellationToken);
+                var data = await _productService.GetAllProducts(cancellationToken);
+
+                if(data == null)
+                {
+                    return NotFound();
+                }
+
+
+                return Ok(data);
+            }
+            catch (OperationCanceledException)
+            {
+                // The request was cancelled by the client
+                return StatusCode(StatusCodes.Status499ClientClosedRequest);
             }
             catch (Exception ex)
             {
@@ -42,6 +59,10 @@ namespace API.Controllers
 
         // GET: api/Products/5
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         public async Task<ActionResult<Product>> GetProduct(int id, CancellationToken cancellationToken)
         {
             try
@@ -56,7 +77,12 @@ namespace API.Controllers
                     return NotFound();
                 }
 
-                return product;
+                return Ok(product);
+            }
+            catch (OperationCanceledException)
+            {
+                // The request was cancelled by the client
+                return StatusCode(StatusCodes.Status499ClientClosedRequest);
             }
             catch (Exception ex)
             {
@@ -99,20 +125,25 @@ namespace API.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct([FromBody] Product product, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(Product), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
+        public async Task<ActionResult<Product>> PostProduct(Product product, CancellationToken cancellationToken)
         {
             try
             {
                 if (cancellationToken.IsCancellationRequested)
                     return StatusCode(StatusCodes.Status499ClientClosedRequest);
 
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
 
                 var id = await _productService.CreateProduct(product, cancellationToken);
 
-                return Ok(id);
+                return CreatedAtAction(nameof(GetProduct), new { id }, product);
+            }
+            catch (OperationCanceledException)
+            {
+                // The request was cancelled by the client
+                return StatusCode(StatusCodes.Status499ClientClosedRequest);
             }
             catch (Exception ex)
             {
